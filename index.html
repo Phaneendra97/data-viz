@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Data Viz</title>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script src="https://unpkg.com/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6.3.3/dist/tippy-bundle.umd.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      rel="stylesheet"
+    /> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      html {
+        height: 100vh;
+      }
+      body {
+        height: 100%;
+      }
+      #chart {
+        height: 600px;
+        margin: 0 auto;
+      }
+      .loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+      "
+    >
+      <nav
+        style="width: 100%"
+        class="navbar navbar-expand-lg navbar-light bg-light"
+      >
+        <div class="container" style="width: 100%">
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="/dgvGraph">Drug-Gene-Variant</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/charts">Protein Structure</a>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  name="knowledge-graph"
+                  id="submit-knowledge-graph-nav"
+                  class="nav-link"
+                  btn-lg
+                  btn-block
+                  style="display: none"
+                >
+                  Drug Disease Interaction
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  name="hierarchy-graph"
+                  id="submit-hierarchy-graph-nav"
+                  class="nav-link"
+                  btn-lg
+                  btn-block
+                  style="display: none"
+                >
+                  ICD9 Hierarchy
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <h1>WEBMD++</h1>
+      <div class="container mt-4">
+        <h3>Symptoms Checker</h3>
+        <p style="color:gray;">Our NLP based model can categorize diseases or disorders given a CHATGPT input description of symptoms.</p>
+        <div
+          class="row"
+          style="display: flex; justify-content: center; align-items: center"
+        >
+          <div class="col-md-10">
+            <textarea
+              id="user-symptom"
+              class="form-control"
+              placeholder='How are you feeling today? You can say something like "I am feeling cold, and I have a running nose."'
+              aria-label="With textarea"
+            ></textarea>
+          </div>
+          <div
+            class="col-md-2"
+            style="
+              display: flex;
+              align-items: center;
+              height: 100%;
+              justify-content: center;
+            "
+          >
+            <button
+              type="button"
+              name="submit-userSymptom"
+              id="submit-userSymptom"
+              class="btn btn-primary"
+              btn-lg
+              btn-block
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="display: none" id="loader" class="loader">
+        <!-- Use Bootstrap's loading spinner -->
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <div
+        id="selectContainer"
+        class="container"
+        style="display: none; padding: 20px"
+      >
+        <h3>Select disease for Prediction Analysis</h3>
+        <select id="select" class="form-control">
+          <!-- <option>Select a Country</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="UK">United Kingdom</option>
+          <option value="DE">Germany</option> -->
+        </select>
+      </div>
+      <div class="container mt-8" style="padding-bottom: 20px">
+        <div
+          id="text-analysis-container"
+          style="
+            display: none;
+            margin-top: 20px;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          "
+        >
+          <h4 id="text-analysis-title"></h4>
+          <p
+            class="p-0"
+            style="width: 300px; text-align: center"
+            id="text-analysis-disease"
+          ></p>
+          <div
+            style="
+              padding: 30px;
+              display: flex;
+              gap: 5px;
+              justify-content: center;
+              flex-flow: wrap;
+              width: 600px;
+              font-size: large;
+            "
+            id="text-analysis-text"
+          ></div>
+        </div>
+      </div>
+      <div
+        id="chartContainer"
+        style="display: none; padding: 10px; flex-direction: column"
+      >
+        <div id="chart"></div>
+        <div style="display: flex; justify-content: center; gap: 10px">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 5px;
+            "
+          >
+            <div
+              style="width: 10px; height: 10px; background-color: orange"
+            ></div>
+            <div class="text">Selected Bars</div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 5px;
+            "
+          >
+            <div
+              style="width: 10px; height: 10px; background-color: blue"
+            ></div>
+            <div class="text">Unselected Bars</div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container mt-2"
+        style="
+          display: flex;
+          gap: 20px;
+          padding-top: 50px;
+          padding-bottom: 50px;
+        "
+      >
+        <div class="col-md-2" style="display: flex; align-items: center">
+          <button
+            type="button"
+            name="knowledge-graph"
+            id="submit-knowledge-graph"
+            class="btn btn-primary"
+            btn-lg
+            btn-block
+            style="display: none"
+          >
+            Drug Disease Interaction
+          </button>
+        </div>
+        <div
+          class="col-md-2"
+          style="display: flex; align-items: center; width: 50%"
+        >
+          <button
+            type="button"
+            name="hierarchy-graph"
+            id="submit-hierarchy-graph"
+            class="btn btn-primary"
+            btn-lg
+            btn-block
+            style="display: none"
+          >
+            ICD9 Hierarchy
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let userTextInput = "";
+      let barSelected = "";
+      let selectedCharts = [];
+      let selectedCodes = [];
+
+      // var $value = $('.dropdown-toggle').attr('title');
+      const select = document.getElementById("select");
+      select.addEventListener(
+        "change",
+        function () {
+          const selectedOptions = Array.from(select.options)
+            .filter((option) => option.selected)
+            .map((option) => option.value);
+          if (selectedOptions[0] == "") {
+            let analysisContainer = document.getElementById(
+              "text-analysis-container"
+            );
+            analysisContainer.style.display = "none";
+          } else {
+            textAnalysisHandler(selectedOptions[0]);
+          }
+        },
+        false
+      );
+
+      function drawChart() {
+        selectedCodes = [];
+        var data = new google.visualization.DataTable();
+        data.addColumn("string", "Disease");
+        data.addColumn("number", "Probability");
+        data.addColumn({ type: "string", role: "style" });
+        data.addColumn({ role: "tooltip", p: { html: true } });
+        predictions.forEach((item) => {
+          let selectedObject = {
+            disease: item.disease,
+            probability: item.probability,
+          };
+          let index = getIndexIfExists(selectedCharts, selectedObject);
+          if (index == -1) {
+            data.addRow([
+              item.disease,
+              item.probability,
+              "",
+              "<div style='padding:10px'><strong>Disease:</strong>&nbsp;" +
+                item.disease +
+                "<br/>" +
+                "<strong>Probability:</strong>&nbsp;" +
+                item.probability +
+                "<br/>" +
+                "<strong>ICD Code:</strong>&nbsp;" +
+                item.code +
+                "</div>",
+            ]);
+          } else {
+            selectedCodes.push(item.code);
+            data.addRow([
+              item.disease,
+              item.probability,
+              "orange",
+              "<div style='padding:10px'><strong>Disease:</strong>&nbsp;" +
+                item.disease +
+                "<br/>" +
+                "<strong>Probability:</strong>&nbsp;" +
+                item.probability +
+                "<br/>" +
+                "<strong>ICD Code:</strong>&nbsp;" +
+                item.code +
+                "</div>",
+            ]);
+          }
+        });
+
+        var options = {
+          title:
+            "Disease Probability (Select upto 3 diseases to view the knowledge graphs)",
+          width: 1200,
+          height: 600,
+          tooltip: { isHtml: true },
+          legend: { position: "none" },
+          vAxis: { title: "Probability" },
+          hAxis: { title: "Diseases" },
+        };
+
+        var chart = new google.visualization.ColumnChart(
+          document.getElementById("chart")
+        );
+
+        google.visualization.events.addListener(
+          chart,
+          "select",
+          chartChangeHandler
+        );
+
+        function chartChangeHandler() {
+          var selectedItem = chart.getSelection()[0];
+          if (selectedItem) {
+            const selectedObject = {
+              disease: data.getValue(selectedItem.row, 0),
+              probability: data.getValue(selectedItem.row, 1),
+            };
+            let index = getIndexIfExists(selectedCharts, selectedObject);
+            if (index == -1) {
+              selectedCharts.push(selectedObject);
+              if (selectedCharts.length > 3) {
+                selectedCharts.splice(0, 1);
+              }
+            } else {
+              selectedCharts.splice(index, 1);
+            }
+
+            let disease = data.getValue(selectedItem.row, 0);
+            let probability = data.getValue(selectedItem.row, 1);
+
+            let predictionObject = predictions.find(function (prediction) {
+              return prediction.disease === disease;
+            });
+
+            barSelected = predictionObject.code;
+
+            let knowledgeGraphButton = document.getElementById(
+              "submit-knowledge-graph"
+            );
+            knowledgeGraphButton.style.display = "block";
+
+            let hierarchyButton = document.getElementById(
+              "submit-hierarchy-graph"
+            );
+            hierarchyButton.style.display = "block";
+
+            let knowledgeGraphButtonnav = document.getElementById(
+              "submit-knowledge-graph-nav"
+            );
+            knowledgeGraphButtonnav.style.display = "block";
+
+            let hierarchyButtonnav = document.getElementById(
+              "submit-hierarchy-graph-nav"
+            );
+            hierarchyButtonnav.style.display = "block";
+
+            loadChart();
+          }
+        }
+
+        chart.draw(data, options);
+      }
+
+      function textAnalysisHandler(selectedItem) {
+        let analysisContainer = document.getElementById(
+          "text-analysis-container"
+        );
+        analysisContainer.style.display = "flex";
+
+        let titleElement = document.getElementById("text-analysis-title");
+        titleElement.innerHTML = "Model Explainability";
+
+        let diseaseElement = document.getElementById("text-analysis-disease");
+
+        let analysisElement = document.getElementById("text-analysis-text");
+        while (analysisElement.firstChild) {
+          analysisElement.removeChild(analysisElement.firstChild);
+        }
+        let predictionObject = predictions.find(function (prediction) {
+          return prediction.code === selectedItem;
+        });
+        diseaseElement.innerHTML =
+          "<strong>Disease:&nbsp;</strong>" + predictionObject.disease;
+
+        barSelected = predictionObject.code;
+
+        let textsArray = userTextInput.split(" ");
+        textsArray.forEach((element) => {
+          let indexOf = findStringIndex(
+            predictionObject.shap_word_list[0],
+            element
+          );
+          let weightOf = predictionObject.shap_word_weights[indexOf];
+          let color = "#FFFFFF";
+          let textColor = "#000000";
+          let fontWeight = 300;
+          if (weightOf > 0 && weightOf < 0.1) {
+            color = "#ffcdd2";
+          }
+          if (weightOf <= 0.3 && weightOf > 0.1) {
+            color = "#ef5350";
+            textColor = "#FFFFFF";
+            fontWeight = 400;
+          } else if (weightOf > 0.3 && weightOf < 0.5) {
+            color = "#e53935";
+            textColor = "#FFFFFF";
+            fontWeight = 500;
+          } else if (weightOf > 0.5 && weightOf < 0.8) {
+            color = "#b71c1c";
+            textColor = "#FFFFFF";
+            fontWeight = 600;
+          } else if (weightOf >= 0.8) {
+            color = "#d50000";
+            textColor = "#FFFFFF";
+            fontWeight = 700;
+          }
+          let paragraph = document.createElement("p");
+          paragraph.textContent = element + " ";
+          paragraph.style.backgroundColor = color;
+          paragraph.style.color = textColor;
+          paragraph.style.padding = "5px";
+          paragraph.style.fontWeight = fontWeight;
+          // paragraph.title = "confidence " + weightOf;
+
+          tippy(paragraph, {
+            content: "confidence " + weightOf,
+            delay: [0, 200],
+            arrow: true,
+          });
+
+          analysisElement.appendChild(paragraph);
+        });
+      }
+      function findStringIndex(arr, searchStr) {
+        // Remove whitespace from the search string
+        var formattedSearchStr = searchStr.replace(/\s/g, "");
+
+        // Find the index of the matching string (ignoring whitespace)
+        var index = arr.findIndex(function (element) {
+          // Remove whitespace from the array element
+          var formattedElement = element.replace(/\s/g, "");
+          // Compare the formatted search string with the formatted array element
+          return formattedElement === formattedSearchStr;
+        });
+
+        return index;
+      }
+
+      document
+        .getElementById("submit-userSymptom")
+        .addEventListener("click", function () {
+          let loader = document.getElementById("loader");
+          loader.style.display = "flex";
+
+          let selectContainer = document.getElementById("selectContainer");
+          selectContainer.style.display = "none";
+
+          let kgButton = document.getElementById("submit-knowledge-graph");
+          kgButton.style.display = "none";
+
+          let treeButton = document.getElementById("submit-hierarchy-graph");
+          treeButton.style.display = "none";
+
+          let kgButtonnav = document.getElementById("submit-knowledge-graph-nav");
+          kgButtonnav.style.display = "none";
+
+          let treeButtonnav = document.getElementById("submit-hierarchy-graph-nav");
+          treeButtonnav.style.display = "none";
+
+          let chartDiv = document.getElementById("chartContainer");
+          chartDiv.style.display = "none";
+
+          let analysisContainer = document.getElementById(
+            "text-analysis-container"
+          );
+          analysisContainer.style.display = "none";
+
+          var input = document.getElementById("user-symptom").value;
+          // Process the input value
+          let requestPayload = {
+            prompt: input,
+          };
+          userTextInput = input;
+          var jsonPayload = JSON.stringify(requestPayload);
+          var requestOptions = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: jsonPayload,
+          };
+
+          fetch("/prediction-exp", requestOptions)
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("HTTP error, status = " + response.status);
+              }
+              return response.json();
+            })
+            .then(function (data) {
+              predictions = data.predictions;
+              loadChart();
+              loadOptionsForSelect();
+
+              chartDiv.style.display = "block";
+
+              // Handle the response data
+            })
+            .catch(function (error) {
+              console.error("Error:", error);
+              // Handle the error
+            });
+
+          // Add your processing logic here
+        });
+
+      document
+        .getElementById("submit-knowledge-graph")
+        .addEventListener("click", function () {
+          // Add your processing logic here
+          payload = {
+            codes: selectedCodes,
+          };
+          localStorage.removeItem("codes");
+          localStorage.setItem("codes", JSON.stringify(payload));
+          window.open("/knowledgeGraph", "_blank");
+        });
+
+      document
+        .getElementById("submit-hierarchy-graph")
+        .addEventListener("click", function () {
+          payload = {
+            codes: selectedCodes,
+          };
+          localStorage.removeItem("codes");
+          localStorage.setItem("codes", JSON.stringify(payload));
+          window.open("/treePage", "_blank");
+        });
+
+        document
+        .getElementById("submit-knowledge-graph-nav")
+        .addEventListener("click", function () {
+          // Add your processing logic here
+          payload = {
+            codes: selectedCodes,
+          };
+          localStorage.removeItem("codes");
+          localStorage.setItem("codes", JSON.stringify(payload));
+          window.open("/knowledgeGraph", "_blank");
+        });
+
+      document
+        .getElementById("submit-hierarchy-graph-nav")
+        .addEventListener("click", function () {
+          payload = {
+            codes: selectedCodes,
+          };
+          localStorage.removeItem("codes");
+          localStorage.setItem("codes", JSON.stringify(payload));
+          window.open("/treePage", "_blank");
+        });
+
+      function loadChart() {
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawChart);
+      }
+
+      function getIndexIfExists(arr, input) {
+        const index = arr.findIndex(
+          (item) =>
+            item.disease === input.disease &&
+            item.probability === input.probability
+        );
+        return index !== -1 ? index : -1;
+      }
+
+      function loadOptionsForSelect() {
+        const select = document.getElementById("select");
+        while (select.options.length > 0) {
+          select.remove(0);
+        }
+        predictions.forEach((prediction) => {
+          const optionText = prediction["disease"];
+          const optionValue = prediction["code"];
+
+          if (optionText && optionValue) {
+            const option = new Option(optionText, optionValue);
+            select.appendChild(option);
+          }
+        });
+        let loader = document.getElementById("loader");
+        loader.style.display = "none";
+
+        let selectContainer = document.getElementById("selectContainer");
+        selectContainer.style.display = "block";
+        textAnalysisHandler(select.options[0].value);
+      }
+    </script>
+  </body>
+</html>

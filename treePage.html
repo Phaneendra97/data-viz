@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ICD9 Disease Tree Hierarchy</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
+      crossorigin="anonymous"
+    />
+    <style>
+      .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 2px;
+      }
+
+      .node text {
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+        fill: #333;
+      }
+
+      .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1.5px;
+      }
+
+      .node:hover circle {
+        stroke: #555;
+        stroke-width: 3px;
+      }
+
+      .node:hover text {
+        font-weight: bold;
+      }
+
+      .tooltip {
+        position: absolute;
+        pointer-events: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 5px;
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      style="width: 100%"
+      class="navbar navbar-expand-lg navbar-light bg-light"
+    >
+      <div class="container" style="width: 100%">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/dgvGraph">Drug-Gene-Variant</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/charts">Protein Structure</a>
+            </li>
+            <li class="nav-item" id="kg">
+              <a class="nav-link" href="/knowledgeGraph"
+                >Drug Disease Interaction</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container col-md-12">
+      <h3 align="center">ICD-9 Disease Tree Hierarchy</h3>
+      <p><a href="https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/codes" target="_blank">ICD-9</a> (International Classification of Diseases, 9th Revision) codes are grouped into various categories based on the nature of the disease, injury, or condition they represent. The ICD-9 coding system organizes codes into three-digit categories, with further subdivisions provided by adding additional digits.Here's a breakdown of the structure of ICD-9 codes:
+      <p><b>Three-Digit Categories:</b> The first three digits of an ICD-9 code represent the major category or chapter. There are 17 chapters in total, each focusing on a specific area of medicine, such as infectious diseases, neoplasms (tumors), diseases of the circulatory system, etc.</p>
+      <p><b>Subcategories:</b> To provide more specific information, ICD-9 codes can be further divided into four-digit subcategories. These subcategories offer additional details about the disease or condition. ICD-9 code 401.9 represents essential hypertension (high blood pressure) without any specified complications. In this code, "401" represents the three-digit category for hypertensive disease, and the ".9" indicates that the code is unspecified. Additional digits may be used to specify complications, associated conditions, or other relevant details.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div id="code-text" style="display: flex; justify-content: center; align-items: center;"></div>
+      <svg class="tree" width="100%" height="600"></svg>
+      <div class="tooltip"></div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+      crossorigin="anonymous"
+    ></script>
+    <script src="icd.js"></script>
+    <script>
+       if(!localStorage.key('codes')){
+        document.getElementById('kg').style.display = 'none';
+        window.location.replace("/");
+        alert('No data have data yet, generate it in Home page');
+
+      }
+      let hierarchyCodes = JSON.parse(localStorage.getItem("codes")).codes;
+      let codeText = document.getElementById("code-text");
+      codeText.innerHTML = "Selected ICD9 codes are: &nbsp;";
+      hierarchyCodes.forEach((hierarchyCode, index) => {
+        let code = hierarchyCode;
+
+        if (code.length == 4) {
+          let decimalChar = code.charAt(3);
+          code = code.substring(0, 3) + "." + decimalChar;
+          codeText.innerHTML = codeText.innerHTML + "<div style='padding: 10px; background-color: lightblue; margin-right:10px; border-radius: 10px'>"+ code+"</div>";
+        } else {
+          codeText.innerHTML = codeText.innerHTML + "<div style='padding: 10px; background-color: lightblue; margin-right:10px; border-radius: 10px'>"+ code+"</div>";
+
+        }
+        if (hierarchyCode.length == 4) {
+          hierarchyCodes[index] = hierarchyCode.substring(0, 3);
+        }
+      });
+      let hierarchyCodesInt = [];
+      hierarchyCodes.forEach((hierarchyCode) => {
+        hierarchyCodesInt.push(parseInt(hierarchyCode));
+      });
+      function collapse(d) {
+        if (d.children) {
+          if (d.data.code.indexOf("-") != -1) {
+            const ranges = d.data.code.split("-");
+            const lowerRange = parseInt(ranges[0]);
+            const upperRange = parseInt(ranges[1]);
+            if (
+              hierarchyCodesInt.some(
+                (hierarchyCode) =>
+                  hierarchyCode >= lowerRange && hierarchyCode <= upperRange
+              )
+            ) {
+              d.children.forEach(collapse);
+            } else {
+              d._children = d.children;
+              d._children.forEach(collapse);
+              d.children = null;
+            }
+          } else {
+            const dataCode = parseInt(d.data.code);
+            if (hierarchyCodesInt.indexOf(dataCode) != -1) {
+              d.children.forEach(collapse);
+            } else {
+              d._children = d.children;
+              d._children.forEach(collapse);
+              d.children = null;
+            }
+          }
+          // if (
+          //   d.data.code == "760-779" ||
+          //   d.data.code == "762" ||
+          //   d.data.code == "760-763" ||
+          //   d.data.code == "762.0.0"
+          // ) {
+          //   d.children.forEach(collapse);
+          // } else {
+          //   d._children = d.children;
+          //   d._children.forEach(collapse);
+          //   d.children = null;
+          // }
+        }
+      }
+
+      function update(source) {
+        const duration = d3.event && d3.event.altKey ? 2500 : 250;
+
+        const nodes = tree(root).descendants();
+        const links = tree(root).links();
+
+        nodes.forEach((d) => {
+          d.y = d.depth * 180;
+        });
+
+        const node = svg
+          .selectAll("g.node")
+          .data(nodes, (d) => d.id || (d.id = ++i));
+
+        const nodeEnter = node
+          .enter()
+          .append("g")
+          .attr("class", "node")
+          .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
+          .on("click", click)
+          .on("mouseover", handleMouseOver)
+          .on("mouseout", handleMouseOut);
+
+        nodeEnter
+          .append("circle")
+          .attr("r", 6)
+          .style("fill", (d) => (d._children ? "lightsteelblue" : "#fff"))
+          .style("cursor", "pointer");
+
+        nodeEnter
+          .append("text")
+          .attr("dy", "0.31em")
+          .attr("x", (d) => (d.children ? -10 : 10))
+          .attr("text-anchor", (d) => (d.children ? "end" : "start"))
+          .text((d) => d.data.code)
+          .style("fill-opacity", 0)
+          .style("cursor", "pointer")
+          .style("user-select", "none")
+          .style("pointer-events", "none");
+
+        const nodeUpdate = node
+          .merge(nodeEnter)
+          .transition()
+          .duration(duration)
+          .attr("transform", (d) => `translate(${d.y},${d.x})`);
+
+        nodeUpdate
+          .select("circle")
+          .attr("r", 6)
+          .style("fill", (d) => (d._children ? "lightsteelblue" : "#fff"));
+
+        nodeUpdate.select("text").style("fill-opacity", 1);
+
+        const nodeExit = node
+          .exit()
+          .transition()
+          .duration(duration)
+          .attr("transform", (d) => `translate(${source.y},${source.x})`)
+          .remove();
+
+        nodeExit.select("circle").attr("r", 1e-6);
+
+        nodeExit.select("text").style("fill-opacity", 1e-6);
+
+        const link = svg.selectAll("path.link").data(links, (d) => d.target.id);
+
+        const linkEnter = link
+          .enter()
+          .insert("path", "g")
+          .attr("class", "link")
+          .attr("d", (d) => {
+            const o = { x: source.x0, y: source.y0 };
+            return diagonal({ source: o, target: o });
+          })
+          .style("stroke-opacity", 0)
+          .style("stroke", "#ccc")
+          .style("fill", "none");
+
+        const linkUpdate = link
+          .merge(linkEnter)
+          .transition()
+          .duration(duration)
+          .attr("d", diagonal)
+          .style("stroke-opacity", 1);
+
+        link
+          .exit()
+          .transition()
+          .duration(duration)
+          .attr("d", (d) => {
+            const o = { x: source.x, y: source.y };
+            return diagonal({ source: o, target: o });
+          })
+          .style("stroke-opacity", 0)
+          .remove();
+
+        nodes.forEach((d) => {
+          d.x0 = d.x;
+          d.y0 = d.y;
+        });
+      }
+
+      function click(event, d) {
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+          update(d);
+        } else if (d._children) {
+          d.children = d._children;
+          d._children = null;
+          update(d);
+        } else {
+          let code = d.data.code;
+          if (code.indexOf("-")) {
+            code = code.split("-")[0];
+          }
+          if (code.length == 2) {
+            code = "0" + code;
+          }
+          window.open(
+            "https://www.aapc.com/codes/icd9-codes/" + code,
+            "_blank"
+          );
+        }
+      }
+
+      function handleMouseOver(d, event) {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(200)
+          .attr("r", 8);
+
+        d3.select(".tooltip")
+
+          .style("left", d.pageX + 10 + "px")
+          .style("top", d.pageY + 10 + "px")
+          .style("opacity", 1)
+          .text(event.data.name);
+      }
+
+      function handleMouseOut() {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(200)
+          .attr("r", 6);
+
+        d3.select(".tooltip").style("opacity", 0);
+      }
+      const diagonal = d3
+        .linkHorizontal()
+        .x((d) => d.y)
+        .y((d) => d.x);
+
+      const width = "100%";
+      const height = 1000;
+
+      const svg = d3
+        .select("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(200, 0)");
+
+      const tree = d3.tree().size([height, width - 160]);
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        const jsonData = JSON.parse(event.target.result);
+      };
+      const root = d3.hierarchy(treeData);
+      root.x0 = height / 2;
+      root.y0 = 0;
+      // root.children.forEach(collapse);
+      root.children.forEach((node) => {
+        collapse(node);
+      });
+
+      let i = 0;
+
+      // predictions: [
+      //   {
+      //     code: str,
+      //     probability: float,
+      //     disease: str,
+      //     shap_word_weights: [float],
+      //     shap_word_list: [str],
+      //     shap_base_value: float,
+      //   },
+      // ];
+
+      update(root);
+    </script>
+  </body>
+</html>

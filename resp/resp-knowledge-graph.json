@@ -1,0 +1,140 @@
+{
+    "links": [
+      {
+        "source": "605",
+        "target": "99"
+      },
+      {
+        "source": "601.1",
+        "target": "99"
+      },
+      {
+        "source": "605",
+        "target": "1514"
+      },
+      {
+        "source": "605",
+        "target": "1516"
+      },
+      {
+        "source": "601.1",
+        "target": "3455"
+      },
+      {
+        "source": "605",
+        "target": "3455"
+      },
+      {
+        "source": "601.1",
+        "target": "3640"
+      },
+      {
+        "source": "601.1",
+        "target": "10323"
+      },
+      {
+        "source": "605",
+        "target": "10323"
+      },
+      {
+        "source": "601.1",
+        "target": "23663"
+      },
+      {
+        "source": "605",
+        "target": "30145"
+      },
+      {
+        "source": "601.1",
+        "target": "82122"
+      },
+      {
+        "source": "605",
+        "target": "108118"
+      },
+      {
+        "source": "605",
+        "target": "227897"
+      },
+      {
+        "source": "601.1",
+        "target": "236344"
+      },
+      {
+        "source": "605",
+        "target": "236344"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "601.1",
+        "label": "Chronic prostatitis",
+        "node_type": "Disease"
+      },
+      {
+        "id": "605",
+        "label": "Redundant prepuce and phimosis",
+        "node_type": "Disease"
+      },
+      {
+        "id": "10323",
+        "label": "Talc",
+        "node_type": "Drug"
+      },
+      {
+        "id": "108118",
+        "label": "Mometasone",
+        "node_type": "Drug"
+      },
+      {
+        "id": "1514",
+        "label": "Betamethasone",
+        "node_type": "Drug"
+      },
+      {
+        "id": "1516",
+        "label": "Betamethasone acetate",
+        "node_type": "Drug"
+      },
+      {
+        "id": "227897",
+        "label": "Betamethasone valerate",
+        "node_type": "Drug"
+      },
+      {
+        "id": "236344",
+        "label": "Saw palmetto extract",
+        "node_type": "Drug"
+      },
+      {
+        "id": "23663",
+        "label": "doxycycline hyclate",
+        "node_type": "Drug"
+      },
+      {
+        "id": "30145",
+        "label": "mometasone furoate",
+        "node_type": "Drug"
+      },
+      {
+        "id": "3455",
+        "label": "Dimethyl Sulfoxide",
+        "node_type": "Drug"
+      },
+      {
+        "id": "3640",
+        "label": "Doxycycline",
+        "node_type": "Drug"
+      },
+      {
+        "id": "82122",
+        "label": "Levofloxacin",
+        "node_type": "Drug"
+      },
+      {
+        "id": "99",
+        "label": "6-Aminocaproic Acid",
+        "node_type": "Drug"
+      }
+    ]
+  }

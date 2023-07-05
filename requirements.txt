@@ -1,0 +1,13 @@
+numpy==1.23.1
+shap
+pandas
+numpy
+matplotlib
+Flask
+scipy
+transformers
+datasets
+plotly==5.14.1
+# pytorch # !! install it manually !!
+Flask-Cors
+graphein

@@ -1,0 +1,312 @@
+{
+    "predictions": [
+      {
+        "code": "038",
+        "probability": 0.9713828563690186,
+        "disease": " Streptococcal septicemia",
+        "shap_word_weights": [
+          0.0,
+          0.7145292973145843,
+          0.048248793464154005,
+          0.19480140740051866,
+          0.0
+        ],
+        "shap_base_value": 0.013803358189761639,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "0384",
+        "probability": 0.337049275636673,
+        "disease": "Septicemia due to gram-negative organism_ unspecified",
+        "shap_word_weights": [
+          0.0,
+          0.2643518461845815,
+          0.06858793972060084,
+          -0.00798251386731863,
+          0.0
+        ],
+        "shap_base_value": 0.012092003598809242,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "250",
+        "probability": 0.9922770261764526,
+        "disease": "Diabetes mellitus without mention of complication_ type II or unspecified type_ not stated as uncontrolled",
+        "shap_word_weights": [
+          0.0,
+          0.24172456562519073,
+          0.011910870671272278,
+          -0.24228939414024353,
+          0.0
+        ],
+        "shap_base_value": 0.9809309840202332,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "2500",
+        "probability": 0.7851532101631165,
+        "disease": "Diabetes mellitus without mention of complication_ type II or unspecified type_ not stated as uncontrolled",
+        "shap_word_weights": [
+          0.0,
+          0.24334635748527944,
+          0.09858225635252893,
+          0.2712654494680464,
+          0.0
+        ],
+        "shap_base_value": 0.17195914685726166,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "276",
+        "probability": 0.46885284781455994,
+        "disease": " Hyperosmolality and/or hypernatremia",
+        "shap_word_weights": [
+          0.0,
+          -0.058592066168785095,
+          -0.007252350449562073,
+          0.0964462161064148,
+          0.0
+        ],
+        "shap_base_value": 0.4382510483264923,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "285",
+        "probability": 0.8671920299530029,
+        "disease": " Sideroblastic anemia",
+        "shap_word_weights": [
+          0.0,
+          0.3920735196734313,
+          -0.11139831147738732,
+          0.5402309950441122,
+          0.0
+        ],
+        "shap_base_value": 0.046285826712846756,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "401",
+        "probability": 0.9797930717468262,
+        "disease": " Malignant essential hypertension",
+        "shap_word_weights": [
+          0.0,
+          0.503144575981878,
+          -0.009962175740383827,
+          -0.4907344374805689,
+          0.0
+        ],
+        "shap_base_value": 0.9773451089859009,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "4019",
+        "probability": 0.964652419090271,
+        "disease": " Unspecified essential hypertension",
+        "shap_word_weights": [
+          0.0,
+          0.5303336267788836,
+          -0.02974449866087525,
+          -0.4772548037581146,
+          0.0
+        ],
+        "shap_base_value": 0.9413180947303772,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "427",
+        "probability": 0.6383268237113953,
+        "disease": " Paroxysmal supraventricular tachycardia",
+        "shap_word_weights": [
+          0.0,
+          0.07230234681628644,
+          0.06969174207188189,
+          -0.5033887326717377,
+          0.0
+        ],
+        "shap_base_value": 0.9997214674949646,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "707",
+        "probability": 0.37374264001846313,
+        "disease": "Pressure ulcer_ unspecified site",
+        "shap_word_weights": [
+          0.0,
+          -0.0638879984326195,
+          -0.12667372639407404,
+          -0.17217047698795795,
+          0.0
+        ],
+        "shap_base_value": 0.7364748120307922,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "785",
+        "probability": 0.9686849117279053,
+        "disease": " Tachycardia_ unspecified",
+        "shap_word_weights": [
+          0.0,
+          0.4587166546843946,
+          0.050984925124794245,
+          0.3269011080265045,
+          0.0
+        ],
+        "shap_base_value": 0.13208222389221191,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "7855",
+        "probability": 0.9716924428939819,
+        "disease": "Shock_ unspecified",
+        "shap_word_weights": [
+          0.0,
+          0.468661728547886,
+          0.06816137651912868,
+          0.3881119601428509,
+          0.0
+        ],
+        "shap_base_value": 0.046757377684116364,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "995",
+        "probability": 0.9952387809753418,
+        "disease": " Other anaphylactic reaction",
+        "shap_word_weights": [
+          0.0,
+          0.7571976226754487,
+          0.08528154017403722,
+          0.13701339904218912,
+          0.0
+        ],
+        "shap_base_value": 0.0157462190836668,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      },
+      {
+        "code": "9959",
+        "probability": 0.9940118193626404,
+        "disease": "Systemic inflammatory response syndrome_ unspecified",
+        "shap_word_weights": [
+          0.0,
+          0.7436225386336446,
+          0.07968702167272568,
+          0.15347107220441103,
+          0.0
+        ],
+        "shap_base_value": 0.017231186851859093,
+        "shap_word_list": [
+          [
+            "",
+            "fever ",
+            "and ",
+            "cold",
+            ""
+          ]
+        ]
+      }
+    ]
+  }

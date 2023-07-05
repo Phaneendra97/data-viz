@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drug, Disease Knowledge Graph</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #mynetwork {
+        width: 100%;
+        height: 100vh;
+        border: 1px solid lightgray;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  </head>
+  <body>
+    <nav
+      style="width: 100%"
+      class="navbar navbar-expand-lg navbar-light bg-light"
+    >
+      <div class="container" style="width: 100%">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/dgvGraph">Drug-Gene-Variant</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/charts">Protein Structure</a>
+            </li>
+            <li class="nav-item" id="tree">
+              <a class="nav-link" href="/treePage">ICD9 Hierarchy</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container col-md-8">
+      <h3 align="center">Knowledge Graph of Disease and Drugs</h3>
+      <p>
+        The knowledge graph visualization connects ICD-9 disease codes to RxNorm drugs, providing a visual representation of their relationships. ICD-9 codes, representing diseases, are depicted as red nodes. Links or edges indicate the associations between drugs and diseases. RxNorm drugs are represented as separate nodes, colored with blue. The visualization helps researchers and healthcare professionals explore connections between diseases and drugs, aiding in decision-making for prescriptions, identifying interactions, and exploring alternative treatments. It offers a concise overview of the complex web of associations, promoting improved patient care and medical research.
+      </p>
+    </div>
+    <div style="display: flex; justify-content: center; gap: 10px">
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <div style="width: 10px; height: 10px; background-color: red"></div>
+        <div class="text">Disease</div>
+      </div>
+
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <div style="width: 10px; height: 10px; background-color: blue"></div>
+        <div class="text">Drug</div>
+      </div>
+    </div>
+    <div id="mynetwork"></div>
+
+    <script>
+       if(!localStorage.key('codes')){
+        document.getElementById('tree').style.display = 'none';
+        window.location.replace("/");
+        alert('No data have data yet, generate it in Home page');
+      }
+      let codes = localStorage.getItem("codes");
+      let nodes = [];
+      let edges = [];
+      let requestPayload = { codes: codes };
+      var jsonPayload = JSON.stringify(requestPayload);
+      var requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: codes,
+      };
+
+      fetch("/knowledge-graph", requestOptions)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("HTTP error, status = " + response.status);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          data.nodes.forEach((node) => {
+            let nodeToBePushed = node;
+            if (node.node_type == "Disease") {
+              nodeToBePushed.color = "#EF5350";
+              nodeToBePushed.size = 20;
+
+              nodes.push(nodeToBePushed);
+            } else {
+              nodeToBePushed.color = "#0D47A1";
+              nodes.push(nodeToBePushed);
+            }
+          });
+          // nodes = data.nodes;
+          edges = data.links;
+          generateKG();
+
+          // Handle the response data
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          // Handle the error
+        });
+
+      function generateKG() {
+        var container = document.getElementById("mynetwork");
+        var data = {
+          nodes: nodes,
+          edges: edges,
+        };
+        console.log(data);
+        // var options = {
+        //   nodes: {
+        //     shape: "dot",
+        //     size: 20,
+        //     font: {
+        //       size: 14,
+        //       face: "Tahoma",
+        //     },
+        //     borderWidth: 2,
+        //   },
+        //   edges: {
+        //     width: 2,
+        //     color: {
+        //       color: "gray", // Change the link color here
+        //       highlight: "#CFD8DC",
+        //     },
+        //   },
+        //   physics: {
+        //     enabled: true,
+        //     barnesHut: {
+        //       gravitationalConstant: -2000,
+        //       centralGravity: 0.3,
+        //       springLength: 300,
+        //       springConstant: 0.04,
+        //       damping: 0.09,
+        //       avoidOverlap: 1,
+        //     },
+        //     maxVelocity: 50,
+        //     minVelocity: 0.1,
+        //     solver: "barnesHut",
+        //     stabilization: {
+        //       enabled: true,
+        //       iterations: 1000,
+        //       updateInterval: 100,
+        //     },
+        //   },
+        // };
+        var options = {
+          nodes: {
+            shape: "dot",
+            scaling: {
+              min: 10,
+              max: 30,
+              label: {
+                min: 8,
+                max: 30,
+                drawThreshold: 12,
+                maxVisible: 25,
+              },
+            },
+            font: {
+              size: 12,
+              face: "Tahoma",
+            },
+          },
+          edges: {
+            width: 3.0,
+            // color: { inherit: "from" },
+            color: {
+              color: "gray", // Change the link color here
+              highlight: "#CFD8DC",
+            },
+            smooth: {
+              type: "continuous",
+            },
+          },
+          physics: false,
+          interaction: {
+            tooltipDelay: 200,
+            hideEdgesOnDrag: true,
+            hideEdgesOnZoom: true,
+          },
+        };
+        var network = new vis.Network(container, data, options);
+      }
+    </script>
+  </body>
+</html>

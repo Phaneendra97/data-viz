@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drug, Gene, Variant Relationship Graph</title>
+    <style>
+      #mynetwork {
+        width: 100%;
+        height: 100vh;
+        border: 1px solid lightgray;
+      }
+
+      /* Generic styles for demo page */
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      div {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        height: 100vh;
+        background-color: #fafafa;
+        font-size: 16px;
+      }
+
+      body,
+      div,
+      span,
+      input,
+      select,
+      p {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+      }
+
+      .wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+      }
+
+      body > .wrapper {
+        flex-direction: column;
+      }
+
+      .container {
+        width: 50%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+
+      body > .wrapper > .container {
+        width: 100%;
+        max-width: unset;
+        margin-bottom: 80px;
+      }
+
+      #dropdownSelected > span:first-of-type {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+
+      .loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  </head>
+  <body>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+      integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <div class="wrapper">
+      <nav
+        style="width: 100%"
+        class="navbar navbar-expand-lg navbar-light bg-light"
+      >
+        <div
+          class="container"
+          style="width: 100%; display: flex; align-items: start"
+        >
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/charts">Protein Structure</a>
+              </li>
+              <li class="nav-item" id="tree">
+                <a class="nav-link" href="/treePage">ICD9 Hierarchy</a>
+              </li>
+              <li class="nav-item" id="kg">
+                <a class="nav-link" href="/knowledgeGraph"
+                  >Drug Disease Interaction</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="container col-md-8">
+        <h3>Disease Gene Variant Relationship</h3>
+        <p>
+          <b>Variant:</b> Mutation in a gene sequence causes the gene to slightly change and it is called variance. <br>
+          <b>Gene:</b> A gene is the basic physical and functional unit of heredity. Genes are made up of DNA. Some genes act as instructions to make molecules. <br>
+          <b>Why?</b>
+          <ul class="col-md-8">
+            <li>A genetic disorder is a disease caused in whole or in part by a change in the DNA sequence away from the normal sequence. Genetic disorders can be caused by a mutation in one gene (monogenic disorder), by mutations in multiple genes (multifactorial inheritance disorder), by a combination of gene mutations and environmental factors, or by damage to chromosomes (changes in the number or structure of entire chromosomes, the structures that carry genes).</li>
+            <li>Some diseases are caused by mutations that are inherited from the parents and are present in an individual at birth, like sickle cell disease. Other diseases are caused by acquired mutations in a gene or group of genes that occur during a person's life. Such mutations are not inherited from a parent, but occur either randomly or due to some environmental exposure (such as cigarette smoke). These include many cancers, as well as some forms of neurofibromatosis.</li>
+            <li>Several studies illustrate the importance of more comprehensive variant discovery, especially as it relates to associations between variants and complex genetic diseases. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6681822/#:~:text=J%20Hum%20Genet%202018%3B%20103%3A%20421%E2%80%9330.%20%5B-,PMC%20free%20article,-%5D%20%5BPubMed%5D%20%5BGoogle%20Scholar%5D%20%5B">(from NLM library)</a> </li>
+          </ul>
+        </p>
+      </div>
+      <div class="wrapper">
+        <div class="container">
+          <select id="dropdown" multiple search="true"></select>
+        </div>
+      </div>
+      <div class="container">
+        <button id="generateGraph" type="button" class="btn btn-primary">
+          Generate Graph
+        </button>
+      </div>
+    </div>
+    <div style="display: none" id="loader" class="loader">
+      <!-- Use Bootstrap's loading spinner -->
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <div id="legend" style="display: none; justify-content: center; gap: 10px">
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <div style="width: 10px; height: 10px; background-color: red"></div>
+        <div class="text">Disease</div>
+      </div>
+
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <div style="width: 10px; height: 10px; background-color: blue"></div>
+        <div class="text">Varients</div>
+      </div>
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <div style="width: 10px; height: 10px; background-color: green"></div>
+        <div class="text">Gene</div>
+      </div>
+    </div>
+    <div style="display: none" id="mynetwork"></div>
+    <script>
+      let diseasesObject = {};
+      let nodes = [];
+      let edges = [];
+      if(!localStorage.key('codes')){
+        document.getElementById('tree').style.display = 'none';
+        document.getElementById('kg').style.display = 'none';
+
+      }
+      let generateGraphButton = document.getElementById("generateGraph");
+      generateGraphButton.addEventListener("click", function () {
+        // Code to execute when the button is clicked
+        console.log("Button clicked!");
+        let loader = document.getElementById("loader");
+        loader.style.display = "flex";
+        let mynetwork = document.getElementById("mynetwork");
+        mynetwork.style.display = "none";
+        let legend = document.getElementById("legend");
+        legend.style.display = "none";
+        let dropdownElement = document.getElementById("dropdown");
+        console.log(dropdownElement);
+        console.log(dropdownElement.value);
+        const selectedOptions = Array.from(dropdownElement.options)
+          .filter((option) => option.selected)
+          .map((option) => option.value);
+        let array = [];
+        selectedOptions.forEach((selected) => {
+          const item = {
+            code: selected,
+            vocabularyName: diseasesObject[selected],
+          };
+          array.push(item);
+        });
+        let payload = { diseases: array };
+        var requestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        };
+
+        fetch("/DGV", requestOptions)
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("HTTP error, status = " + response.status);
+            }
+            return response.json();
+          })
+          .then(function (data) {
+            nodes = [];
+            edges = [];
+            data.nodes.forEach((node) => {
+              let nodeToBePushed = node;
+              if (node.type == "disease") {
+                nodeToBePushed.color = "#EF5350";
+                nodeToBePushed.shape = "circle";
+                nodeToBePushed.size = 20;
+
+                nodes.push(nodeToBePushed);
+              } else if (node.type == "variant") {
+                nodeToBePushed.color = "#0D47A1";
+                nodes.push(nodeToBePushed);
+              } else {
+                nodeToBePushed.color = "#2E7D32";
+                nodes.push(nodeToBePushed);
+              }
+            });
+            // nodes = data.nodes;
+            edges = data.links;
+            generateKG();
+          })
+          .catch(function (error) {
+            console.error("Error:", error);
+            // Handle the error
+          });
+      });
+
+      requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      fetch("/dgvdiseases", requestOptions)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("HTTP error, status = " + response.status);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          diseasesObject = data;
+          const dropdown = document.getElementById("dropdown");
+          Object.keys(diseasesObject).forEach((key) => {
+            const optionText = diseasesObject[key];
+            const optionValue = key;
+
+            if (optionText && optionValue) {
+              const option = new Option(optionText, optionValue);
+              dropdown.appendChild(option);
+            }
+          });
+          MultiSelectDropdown(window.MultiSelectDropdownOptions);
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          // Handle the error
+        });
+
+      function generateKG() {
+        var container = document.getElementById("mynetwork");
+        var data = {
+          nodes: nodes,
+          edges: edges,
+        };
+        console.log(data);
+        var options = {
+          nodes: {
+            shape: "dot",
+            size: 20,
+            font: {
+              size: 14,
+              face: "Tahoma",
+            },
+            borderWidth: 2,
+          },
+          edges: {
+            width: 2,
+            color: {
+              color: "gray", // Change the link color here
+              highlight: "#CFD8DC",
+            },
+          },
+          physics: {
+            enabled: true,
+            barnesHut: {
+              gravitationalConstant: -2000,
+              centralGravity: 0.3,
+              springLength: 200,
+              springConstant: 0.04,
+              damping: 0.09,
+              avoidOverlap: 0,
+            },
+            maxVelocity: 50,
+            minVelocity: 0.1,
+            solver: "barnesHut",
+            stabilization: {
+              enabled: true,
+              iterations: 1000,
+              updateInterval: 100,
+            },
+          },
+        };
+        var network = new vis.Network(container, data, options);
+        let loader = document.getElementById("loader");
+        loader.style.display = "none";
+
+        let mynetwork = document.getElementById("mynetwork");
+        mynetwork.style.display = "flex";
+
+        let legend = document.getElementById("legend");
+        legend.style.display = "flex";
+      }
+    </script>
+    <script src="./multi-select-dropdown.js"></script>
+  </body>
+</html>
